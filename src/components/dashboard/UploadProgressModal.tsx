@@ -114,7 +114,13 @@ interface UploadProgressModalProps {
   filesUploaded: number;
   totalFiles: number;
   currentFileName?: string;
-  phase?: "extracting" | "uploading-images" | "updating-product" | "complete";
+  phase?:
+    | "uploading-zip"
+    | "processing"
+    | "extracting"
+    | "uploading-images"
+    | "updating-product"
+    | "complete";
 }
 
 export default function UploadProgressModal({
@@ -137,6 +143,20 @@ export default function UploadProgressModal({
   // Determinar el ícono y color según la fase
   const getPhaseInfo = () => {
     switch (phase) {
+      case "uploading-zip":
+        return {
+          icon: <UploadIcon />,
+          color: "text-blue-600",
+          bgColor: "bg-blue-50",
+          label: "Subiendo archivo ZIP",
+        };
+      case "processing":
+        return {
+          icon: <ExtractIcon />,
+          color: "text-indigo-600",
+          bgColor: "bg-indigo-50",
+          label: "Procesando archivo",
+        };
       case "extracting":
         return {
           icon: <ExtractIcon />,

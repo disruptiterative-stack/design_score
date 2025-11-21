@@ -8,6 +8,8 @@ export type SSEEventType = "progress" | "error" | "complete";
  */
 export type UploadPhase =
   | "upload-complete"
+  | "downloading"
+  | "download-complete"
   | "extracting"
   | "extracted"
   | "uploading-images"

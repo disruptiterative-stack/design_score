@@ -1,5 +1,23 @@
 # Guía de Solución de Problemas
 
+## ✅ Solución Implementada para Vercel
+
+**Problema resuelto**: El límite de 4.5MB de Vercel ha sido evitado mediante una nueva arquitectura de subida directa a Supabase Storage.
+
+### Cómo Funciona Ahora
+
+1. **Subida directa**: El archivo ZIP se sube directamente desde el navegador a Supabase Storage (límite: 500MB)
+2. **Procesamiento asíncrono**: Una vez en Supabase, el servidor procesa el archivo sin límites de Vercel
+3. **Progreso en tiempo real**: Seguimiento con Server-Sent Events (SSE)
+
+### Límites Actuales
+
+- **Tamaño máximo de archivo**: 500MB (límite de Supabase Storage)
+- **Tiempo máximo de procesamiento**: 300 segundos (5 minutos)
+- **Máximo de archivos en ZIP**: 10,000 archivos
+
+---
+
 ## Error: "Unexpected token 'R', 'Request En'... is not valid JSON"
 
 ### Descripción del Problema

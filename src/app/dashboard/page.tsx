@@ -11,7 +11,7 @@ import DeleteProductConfirmModal from "@/src/components/dashboard/DeleteProductM
 import { LoadingScreen } from "@/src/components/LoadingScreen";
 import { useDashboard } from "@/src/hooks/useDashboard";
 import { useProducts } from "@/src/hooks/useProducts";
-import { useProductUpload } from "@/src/hooks/useProductUpload";
+import { useDirectUpload } from "@/src/hooks/useDirectUpload";
 import { signOutAction } from "@/src/app/actions/authActions";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -21,7 +21,7 @@ type ActiveTab = "projects" | "products";
 export default function DashboardPage() {
   const dashboard = useDashboard();
   const productsHook = useProducts();
-  const { uploadState, uploadProduct, startUpload } = useProductUpload();
+  const { uploadState, uploadProduct, startUpload } = useDirectUpload();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>("projects");

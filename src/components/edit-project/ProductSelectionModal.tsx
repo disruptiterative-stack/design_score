@@ -7,7 +7,7 @@ import ProductCard from "@/src/components/ProductCard";
 import Button from "@/src/components/ui/Button";
 import AddProductDialog from "@/src/components/dashboard/AddProductDialog";
 import UploadProgressModal from "@/src/components/dashboard/UploadProgressModal";
-import { useProductUpload } from "@/src/hooks/useProductUpload";
+import { useDirectUpload } from "@/src/hooks/useDirectUpload";
 import { useProducts } from "@/src/hooks/useProducts";
 
 interface ProductSelectionModalProps {
@@ -32,7 +32,7 @@ export function ProductSelectionModal({
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
-  const { uploadState, uploadProduct, startUpload } = useProductUpload();
+  const { uploadState, uploadProduct, startUpload } = useDirectUpload();
   const productsHook = useProducts();
 
   useEffect(() => {
