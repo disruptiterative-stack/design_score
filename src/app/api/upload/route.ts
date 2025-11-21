@@ -16,7 +16,7 @@ import {
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 6 * 60; // 6 minutos para subir archivos grandes
+//export const maxDuration = 6 * 60; // 6 minutos para subir archivos grandes
 
 /**
  * POST /api/upload-rar-stream
