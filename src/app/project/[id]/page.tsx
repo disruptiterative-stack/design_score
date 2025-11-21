@@ -27,21 +27,6 @@ export default function ProjectViewerPage() {
     }
   }, [viewer.error]);
 
-  // Mostrar pantalla de carga inicial mientras se cargan datos del proyecto
-  if (viewer.isLoading) {
-    return (
-      <LoadingScreen
-        title="Cargando Proyecto"
-        subtitle="Preparando el proyecto para visualización..."
-        steps={[
-          "Cargando información del proyecto",
-          "Obteniendo vistas configuradas",
-          "Preparando modelos 3D",
-        ]}
-      />
-    );
-  }
-
   if (viewer.error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">

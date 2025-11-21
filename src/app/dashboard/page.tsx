@@ -115,11 +115,6 @@ export default function DashboardPage() {
       <LoadingScreen
         title="Cargando Dashboard"
         subtitle="Preparando tus proyectos y productos..."
-        steps={[
-          "Cargando proyectos",
-          "Obteniendo productos",
-          "Preparando interfaz",
-        ]}
       />
     );
   }

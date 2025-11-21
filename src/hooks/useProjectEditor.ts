@@ -25,6 +25,9 @@ export function useProjectEditor(projectId: string) {
   // Gestor de productos
   const productManager = useProductManager(projectId);
 
+  // Estado de carga combinado: esperar a que terminen tanto el proyecto como las vistas
+  const isLoading = projectData.isLoading || viewsManager.isLoading;
+
   // Estado del modal de creación de vista
   const [viewCreationModal, setViewCreationModal] = useState({
     isOpen: false,
@@ -270,7 +273,7 @@ export function useProjectEditor(projectId: string) {
     // Estado del proyecto
     project: projectData.project,
     products: projectData.products,
-    isLoading: projectData.isLoading,
+    isLoading: isLoading, // Usar estado de carga combinado
     error: projectData.error,
     getTotalWeight: projectData.getTotalWeight,
 

@@ -36,7 +36,7 @@ export function ViewDeletionModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 h-screen bg-black/70 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
         {/* Confirmación inicial */}
         {!isLoading && !error && !success && (
