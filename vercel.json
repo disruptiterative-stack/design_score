@@ -1,7 +1,7 @@
 {
   "functions": {
     "src/app/api/upload/route.ts": {
-      "memory": 2028
+      "memory": 2048
     }
   },
   "headers": [
