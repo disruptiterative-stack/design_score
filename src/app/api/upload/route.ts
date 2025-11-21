@@ -16,7 +16,7 @@ import {
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 300; // 5 minutos para subir archivos grandes
+export const maxDuration = 6 * 60; // 6 minutos para subir archivos grandes
 
 /**
  * POST /api/upload-rar-stream
@@ -151,7 +151,7 @@ async function handleUploadStream(
   const productUseCase = new ProductUseCase(productRepository);
   const validationService = new FileValidationService();
   const uploadService = new ImageUploadService(storageRepository, {
-    batchSize: 10,
+    batchSize: 12,
     delayBetweenBatches: 350,
   });
 

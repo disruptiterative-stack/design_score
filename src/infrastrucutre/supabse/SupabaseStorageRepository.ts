@@ -63,58 +63,56 @@ export class SupabaseStorageRepository implements IStorageRepository {
       );
       console.log(`🔍 Primeros archivos:`, allFiles.slice(0, 5)); */
 
-      // Eliminar todos los archivos en lotes de 50 (más conservador)
-      const batchSize = 50;
+      // Eliminar todos los archivos en lotes grandes para mayor velocidad
+      const batchSize = 200; // Aumentado de 50 a 200 para mayor velocidad
       /*       let totalDeleted = 0; */
+
+      // Crear promesas para eliminar múltiples lotes en paralelo (máximo 3 a la vez)
+      const maxParallelBatches = 3;
+      const deletionPromises: Promise<void>[] = [];
 
       for (let i = 0; i < allFiles.length; i += batchSize) {
         const batch = allFiles.slice(i, i + batchSize);
-        /*         const batchNum = Math.floor(i / batchSize) + 1;
-        const totalBatches = Math.ceil(allFiles.length / batchSize); */
 
-        /*         console.log(
-          `🗑️  Eliminando lote ${batchNum}/${totalBatches} (${batch.length} archivos)...`
-        );
-        console.log(`   Archivos en este lote:`, batch.slice(0, 3)); */
+        const deletionPromise = (async () => {
+          const { error: deleteError } = await this.supabaseClient.storage
+            .from("files")
+            .remove(batch);
 
-        const { error: deleteError } = await this.supabaseClient.storage
-          .from("files")
-          .remove(batch);
+          if (deleteError) {
+            console.error(
+              `❌ Error eliminando lote de ${batch.length} archivos:`,
+              deleteError.message
+            );
+          }
+        })();
 
-        if (deleteError) {
-          console.error(
-            `❌ Error eliminando archivos de ${folderPath}:`,
-            deleteError
-          );
-          // Continuar con el siguiente lote en lugar de fallar completamente
-          console.warn(`⚠️  Continuando con el siguiente lote...`);
-        } else {
-          /*     totalDeleted += batch.length; */
-          /*       console.log(
-            `✅ Lote ${batchNum} eliminado. Total eliminado: ${totalDeleted}/${allFiles.length}`
-          ); */
-        }
+        deletionPromises.push(deletionPromise);
 
-        // Pequeño delay entre lotes para no saturar Supabase
-        if (i + batchSize < allFiles.length) {
-          await new Promise((resolve) => setTimeout(resolve, 100));
+        // Ejecutar en lotes de promesas paralelas para evitar saturar
+        if (deletionPromises.length >= maxParallelBatches) {
+          await Promise.allSettled(deletionPromises);
+          deletionPromises.length = 0; // Limpiar el array
         }
       }
 
-      // Verificar si quedan archivos
-      /*     console.log(`🔍 Verificando archivos restantes en ${folderPath}...`); */
+      // Ejecutar las promesas restantes
+      if (deletionPromises.length > 0) {
+        await Promise.allSettled(deletionPromises);
+      }
+
+      // Verificar si quedan archivos (opcional, eliminar para mayor velocidad)
+      // Si confías en que la eliminación funcionó, puedes comentar esta sección
       const remainingFiles = await this.listAllFilesRecursively(folderPath);
 
       if (remainingFiles.length > 0) {
         console.warn(
-          `⚠️  Quedan ${remainingFiles.length} archivos sin eliminar`
+          `⚠️  Quedan ${remainingFiles.length} archivos sin eliminar, reintentando...`
         );
-        /*         console.warn(`   Ejemplos:`, remainingFiles.slice(0, 5));
-        // Intentar eliminar los archivos restantes de nuevo
-        console.log(`🔄 Reintentando eliminación de archivos restantes...`); */
+        // Intentar eliminar los archivos restantes de nuevo en un solo lote
         const { error: retryError } = await this.supabaseClient.storage
           .from("files")
-          .remove(remainingFiles.slice(0, 100)); // Limitar a 100 en el reintento
+          .remove(remainingFiles.slice(0, 200)); // Limitar a 200 en el reintento
 
         if (retryError) {
           console.error(`❌ Error en reintento:`, retryError);
@@ -133,61 +131,86 @@ export class SupabaseStorageRepository implements IStorageRepository {
   }
 
   /**
-   * Lista todos los archivos en una carpeta recursivamente con paginación
+   * Lista todos los archivos en una carpeta recursivamente con paginación optimizada
    */
   private async listAllFilesRecursively(
     folderPath: string,
     accumulated: string[] = []
   ): Promise<string[]> {
-    let offset = 0;
     const limit = 1000;
-    let hasMore = true;
 
-    // Paginar para obtener todos los items
-    while (hasMore) {
-      const { data: files, error: listError } =
-        await this.supabaseClient.storage.from("files").list(folderPath, {
-          limit,
-          offset,
-          sortBy: { column: "name", order: "asc" },
-        });
+    // Primera llamada para obtener el total aproximado
+    const { data: initialFiles, error: listError } =
+      await this.supabaseClient.storage.from("files").list(folderPath, {
+        limit,
+        offset: 0,
+        sortBy: { column: "name", order: "asc" },
+      });
 
-      if (listError) {
-        console.error(
-          `❌ Error listando carpeta ${folderPath} (offset ${offset}):`,
-          listError
-        );
-        break;
-      }
+    if (listError) {
+      console.error(`❌ Error listando carpeta ${folderPath}:`, listError);
+      return accumulated;
+    }
 
-      if (!files || files.length === 0) {
-        hasMore = false;
-        break;
-      }
+    if (!initialFiles || initialFiles.length === 0) {
+      return accumulated;
+    }
 
-      /*       console.log(
-        `📄 Listando ${folderPath}: encontrados ${files.length} items (offset ${offset})`
-      ); */
+    // Procesar primera página
+    const folderPromises: Promise<void>[] = [];
 
-      for (const file of files) {
-        const fullPath = `${folderPath}/${file.name}`;
+    for (const file of initialFiles) {
+      const fullPath = `${folderPath}/${file.name}`;
 
-        // Si es un archivo (tiene id), agregarlo a la lista
-        if (file.id) {
-          accumulated.push(fullPath);
-        } else {
-          // Si es una carpeta (id es null), explorarla recursivamente
-          await this.listAllFilesRecursively(fullPath, accumulated);
-        }
-      }
-
-      // Si obtuvimos menos archivos que el límite, no hay más páginas
-      if (files.length < limit) {
-        hasMore = false;
+      if (file.id) {
+        // Es un archivo
+        accumulated.push(fullPath);
       } else {
-        offset += limit;
+        // Es una carpeta, explorar recursivamente en paralelo
+        folderPromises.push(
+          this.listAllFilesRecursively(fullPath, accumulated).then(() => {})
+        );
       }
     }
+
+    // Si hay más páginas, procesarlas en paralelo
+    if (initialFiles.length === limit) {
+      const pagePromises: Promise<void>[] = [];
+
+      // Estimar cuántas páginas más pueden haber (máximo 10 en paralelo)
+      for (let offset = limit; offset < limit * 10; offset += limit) {
+        pagePromises.push(
+          (async () => {
+            const { data: files, error } = await this.supabaseClient.storage
+              .from("files")
+              .list(folderPath, {
+                limit,
+                offset,
+                sortBy: { column: "name", order: "asc" },
+              });
+
+            if (error || !files || files.length === 0) {
+              return;
+            }
+
+            for (const file of files) {
+              const fullPath = `${folderPath}/${file.name}`;
+
+              if (file.id) {
+                accumulated.push(fullPath);
+              } else {
+                await this.listAllFilesRecursively(fullPath, accumulated);
+              }
+            }
+          })()
+        );
+      }
+
+      await Promise.allSettled(pagePromises);
+    }
+
+    // Esperar a que todas las carpetas se procesen
+    await Promise.allSettled(folderPromises);
 
     return accumulated;
   }

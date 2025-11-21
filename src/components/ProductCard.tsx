@@ -2,6 +2,7 @@ import { Product } from "@/src/domain/entities/Product";
 import Image from "next/image";
 import { useState } from "react";
 import EditProductNameModal from "@/src/components/EditProductNameModal";
+import { getViewerBaseUrl } from "../lib/getViewerBaseUrl";
 
 interface ProductCardProps {
   product: Product;
@@ -36,6 +37,13 @@ export default function ProductCard({
     !product.cover_image.toLowerCase().endsWith(".rar") &&
     !imageError;
 
+  const coverImageParts = product.cover_image?.split("/");
+  const cover_image =
+    getViewerBaseUrl(product) +
+    "/" +
+    coverImageParts?.[coverImageParts.length - 1];
+  console.log("Cover Image:", cover_image);
+
   return (
     <div
       className={`bg-white border rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 max-h-[18em] w-[15em] ${
@@ -46,7 +54,7 @@ export default function ProductCard({
       <div className="relative h-32 bg-gray-100">
         {isValidCoverImage ? (
           <Image
-            src={product.cover_image!}
+            src={cover_image}
             alt={product.name}
             fill
             className="object-cover"
