@@ -15,12 +15,16 @@ const nextConfig: NextConfig = {
   // Optimización de imágenes
   images: {
     remotePatterns: [
-      // Supabase Storage
-      {
-        protocol: "https" as const,
-        hostname: supabaseHostname || "",
-        pathname: "/storage/v1/object/public/**",
-      },
+      // Supabase Storage - solo agregar si existe el hostname
+      ...(supabaseHostname
+        ? [
+            {
+              protocol: "https" as const,
+              hostname: supabaseHostname,
+              pathname: "/storage/v1/object/public/**",
+            },
+          ]
+        : []),
       // CDN para imágenes de productos
       ...(cdnHostname
         ? [
@@ -108,13 +112,20 @@ const nextConfig: NextConfig = {
               "default-src 'self'; " +
               "script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; " +
               "style-src 'self' 'unsafe-inline'; " +
-              `img-src 'self' data: blob: ${supabaseHostnames
-                .map((h) => `https://${h}`)
-                .join(" ")}; ` +
+              `img-src 'self' data: blob:${
+                supabaseHostnames.length > 0
+                  ? " " + supabaseHostnames.map((h) => `https://${h}`).join(" ")
+                  : ""
+              }; ` +
               "font-src 'self' data:; " +
-              `connect-src 'self' ${supabaseHostnames
-                .map((h) => `https://${h} wss://${h}`)
-                .join(" ")}; ` +
+              `connect-src 'self'${
+                supabaseHostnames.length > 0
+                  ? " " +
+                    supabaseHostnames
+                      .map((h) => `https://${h} wss://${h}`)
+                      .join(" ")
+                  : ""
+              }; ` +
               "frame-src 'self'; " +
               "object-src 'none'; " +
               "base-uri 'self'; " +
