@@ -84,7 +84,7 @@ export function useProductUpload() {
 
       if (!response.ok) {
         let errorMessage = "Error en la subida";
-        
+
         try {
           // Intentar leer la respuesta como JSON
           const errorData = await response.json();
@@ -93,12 +93,13 @@ export function useProductUpload() {
           // Si falla el parseo JSON, intentar leer como texto
           try {
             const errorText = await response.text();
-            errorMessage = errorText || `Error ${response.status}: ${response.statusText}`;
+            errorMessage =
+              errorText || `Error ${response.status}: ${response.statusText}`;
           } catch {
             errorMessage = `Error ${response.status}: ${response.statusText}`;
           }
         }
-        
+
         throw new Error(errorMessage);
       }
 

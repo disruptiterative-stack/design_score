@@ -3,16 +3,19 @@
 ## Error: "Unexpected token 'R', 'Request En'... is not valid JSON"
 
 ### Descripción del Problema
+
 Este error ocurre cuando intentas subir un proyecto/producto y el servidor devuelve una respuesta que no es JSON válido (generalmente texto plano o HTML).
 
 ### Causas Comunes
 
 1. **Archivo demasiado grande** (Causa más común)
+
    - Límite configurado: 100MB
    - El error puede aparecer como "Request Entity Too Large" o error 413
    - Vercel tiene límites de 4.5MB para API Routes en el plan gratuito
 
 2. **Archivo ZIP corrupto**
+
    - El archivo ZIP no se puede leer correctamente
    - Formato incorrecto o compresión dañada
 
@@ -25,6 +28,7 @@ Este error ocurre cuando intentas subir un proyecto/producto y el servidor devue
 #### ✅ Solución 1: Reducir el tamaño del archivo
 
 **Opción A: Comprimir las imágenes**
+
 ```bash
 # Usar herramientas como ImageOptim, TinyPNG, o comandos:
 mogrify -resize 50% *.jpg
@@ -32,11 +36,14 @@ mogrify -quality 85% *.jpg
 ```
 
 **Opción B: Reducir la cantidad de imágenes**
+
 - Divide tu producto en varios productos más pequeños
 - Sube las imágenes en múltiples lotes
 
 **Opción C: Usar formatos más eficientes**
+
 - Convierte JPG/PNG a WebP (reduce hasta 30% el tamaño)
+
 ```bash
 cwebp input.jpg -q 80 -o output.webp
 ```
@@ -57,6 +64,7 @@ zip -r archivo_nuevo.zip carpeta/
 Si tienes tu propio servidor o plan Vercel Pro, puedes aumentar los límites:
 
 **En `next.config.ts`:**
+
 ```typescript
 experimental: {
   serverActions: {
@@ -66,6 +74,7 @@ experimental: {
 ```
 
 **En `vercel.json`:**
+
 ```json
 {
   "functions": {
@@ -78,6 +87,7 @@ experimental: {
 ```
 
 **Variables de entorno:**
+
 ```bash
 MAX_FILE_SIZE=104857600  # 100MB en bytes
 ```
@@ -106,11 +116,13 @@ Para verificar los límites configurados en tu instancia:
 Si el problema persiste, revisa los logs:
 
 **En el navegador (Consola de DevTools):**
+
 ```
 ❌ Error en upload: [mensaje de error]
 ```
 
 **En el servidor (Vercel Logs o consola local):**
+
 ```
 ❌ [upload-rar-stream] Error procesando archivo
 ```
@@ -118,6 +130,7 @@ Si el problema persiste, revisa los logs:
 ### Contacto de Soporte
 
 Si ninguna de estas soluciones funciona, reporta el error con:
+
 - Tamaño del archivo ZIP
 - Número de imágenes en el ZIP
 - Logs de la consola del navegador
@@ -126,14 +139,17 @@ Si ninguna de estas soluciones funciona, reporta el error con:
 ## Otros Errores Comunes
 
 ### Error: "Usuario no autenticado"
+
 **Solución:** Vuelve a iniciar sesión
 
 ### Error: "No se proporcionó archivo"
+
 **Solución:** Asegúrate de seleccionar un archivo antes de hacer clic en "Subir"
 
 ### Error: "Solo se permiten archivos .zip"
+
 **Solución:** Convierte tu archivo RAR/7z a ZIP
 
 ### Error: "El archivo ZIP está vacío"
-**Solución:** Verifica que tu ZIP contenga archivos
 
+**Solución:** Verifica que tu ZIP contenga archivos
