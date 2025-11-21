@@ -27,11 +27,6 @@ export default function EditProjectPage() {
       <LoadingScreen
         title="Cargando Proyecto"
         subtitle="Preparando la información del proyecto..."
-        steps={[
-          "Cargando información del proyecto",
-          "Obteniendo productos",
-          "Preparando vistas",
-        ]}
       />
     );
   }
