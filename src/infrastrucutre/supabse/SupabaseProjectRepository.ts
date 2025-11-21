@@ -3,13 +3,11 @@ import { Project } from "@/src/domain/entities/Project";
 import { Product } from "@/src/domain/entities/Product";
 import { IProjectRepository } from "@/src/domain/ports/IProjectRepository";
 import { IStorageRepository } from "@/src/domain/ports/IStorageReposity";
-import { IProductRepository } from "@/src/domain/ports/IProductRepository";
 
 export class SupabaseProjectRepository implements IProjectRepository {
   constructor(
     private supabaseClient: SupabaseClient,
-    private storageRepository?: IStorageRepository,
-    private productRepository?: IProductRepository
+    private storageRepository?: IStorageRepository
   ) {}
 
   async createProject(project: Project): Promise<{
@@ -206,7 +204,7 @@ export class SupabaseProjectRepository implements IProjectRepository {
   }> {
     try {
       // 1. Obtener todos los productos del proyecto para eliminar sus imágenes
-      if (this.productRepository && this.storageRepository) {
+      /*  if (this.productRepository && this.storageRepository) {
         // Obtener el admin_id del proyecto primero
         const { data: projectData } = await this.supabaseClient
           .from("projects")
@@ -276,7 +274,7 @@ export class SupabaseProjectRepository implements IProjectRepository {
             }
           }
         }
-      }
+      } */
 
       // 4. Eliminar el proyecto (CASCADE eliminará automáticamente project_products, views, view_products)
       const { error: deleteError } = await this.supabaseClient

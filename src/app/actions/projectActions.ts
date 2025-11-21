@@ -154,14 +154,9 @@ export async function deleteProjectAction(
     );
 
     const storageRepository = new SupabaseStorageRepository(client);
-    const productRepository = new SupabaseProductRepository(
-      client,
-      storageRepository
-    );
     const projectRepository = new SupabaseProjectRepository(
       client,
-      storageRepository,
-      productRepository
+      storageRepository
     );
     const projectUseCase = new ProjectUseCase(projectRepository);
 
