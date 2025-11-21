@@ -83,7 +83,16 @@ export default function DashboardPage() {
     } catch (error: unknown) {
       const err = error as Error;
       console.error("❌ Error creando producto:", err);
-      alert(`Error al crear producto: ${err.message}`);
+      
+      // Mensaje de error más informativo
+      let errorMessage = err.message;
+      if (errorMessage.includes("413") || errorMessage.includes("Request Entity Too Large")) {
+        errorMessage = "El archivo es demasiado grande. El límite es de 100MB. Por favor, comprime tus imágenes o reduce la cantidad.";
+      } else if (errorMessage.includes("not valid JSON")) {
+        errorMessage = "Error del servidor al procesar el archivo. Verifica que el archivo ZIP no esté corrupto y sea menor a 100MB.";
+      }
+      
+      alert(`Error al crear producto: ${errorMessage}`);
     }
   };
 

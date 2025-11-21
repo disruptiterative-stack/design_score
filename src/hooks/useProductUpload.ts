@@ -83,8 +83,23 @@ export function useProductUpload() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Error en la subida");
+        let errorMessage = "Error en la subida";
+        
+        try {
+          // Intentar leer la respuesta como JSON
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // Si falla el parseo JSON, intentar leer como texto
+          try {
+            const errorText = await response.text();
+            errorMessage = errorText || `Error ${response.status}: ${response.statusText}`;
+          } catch {
+            errorMessage = `Error ${response.status}: ${response.statusText}`;
+          }
+        }
+        
+        throw new Error(errorMessage);
       }
 
       // Procesar eventos SSE

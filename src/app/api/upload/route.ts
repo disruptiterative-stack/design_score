@@ -16,7 +16,7 @@ import {
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-//export const maxDuration = 6 * 60; // 6 minutos para subir archivos grandes
+export const maxDuration = 300; // 5 minutos para subir archivos grandes
 
 /**
  * POST /api/upload-rar-stream
@@ -182,6 +182,14 @@ async function handleUploadStream(
   const fileValidation = validationService.validateFileExists(file);
   if (!fileValidation.isValid) {
     sse.sendError(fileValidation.error!);
+    sse.close();
+    return;
+  }
+
+  // Validar tamaño del archivo
+  const sizeValidation = validationService.validateFileSize(file.size);
+  if (!sizeValidation.isValid) {
+    sse.sendError(sizeValidation.error!);
     sse.close();
     return;
   }
