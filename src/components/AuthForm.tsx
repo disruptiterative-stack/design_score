@@ -28,18 +28,6 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
     setMode("signin");
   }, []);
 
-  /*  const handleClearSession = async () => {
-    try {
-      await signOutAction();
-      setError(null);
-      setEmail("");
-      setPassword("");
-      alert("✅ Sesión limpiada. Intenta iniciar sesión nuevamente.");
-    } catch (err: any) {
-      console.error("Error limpiando sesión:", err);
-    }
-  }; */
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -80,6 +68,7 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
           <Input
             type="email"
             label="Usuario"
+            placeholder="example@gmail.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -89,6 +78,7 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
           <Input
             type="password"
             label="Contraseña"
+            placeholder="********"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -99,26 +89,26 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
 
           {/* Botón de Ingreso */}
           <div className="flex items-center justify-center gap-3">
-            <Button type="submit" variant="primary" isLoading={isSubmitting}>
+            <Button type="submit" variant="secondary" isLoading={isSubmitting}>
               {mode === "signin" ? "Ingresar" : "Registrarse"}
             </Button>
           </div>
         </div>
-      </form>
 
-      {/* Botón secundario para alternar modo */}
-      <div className="mt-4 text-center">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-          className="hover:underline"
-        >
-          {mode === "signin"
-            ? "¿No tienes cuenta? Crear una nueva"
-            : "¿Ya tienes cuenta? Iniciar sesión"}
-        </Button>
-      </div>
+        {/* Botón secundario para alternar modo */}
+        <div className="mt-4 text-center">
+          <Button
+            type="button"
+            variant="primary"
+            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+            className="hover:underline"
+          >
+            {mode === "signin"
+              ? "¿No tienes cuenta? Crear una nueva"
+              : "¿Ya tienes cuenta? Iniciar sesión"}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
