@@ -30,15 +30,17 @@ export function ProductGallery({
   };
 
   return (
-    <div className="flex flex-wrap gap-6 justify-start">
-      {products.map((product, index) => (
-        <ProductCard
-          key={product.product_id || product.id}
-          product={product}
-          onView={() => onSelectProduct(index)}
-          onDelete={handleDelete}
-        />
-      ))}
+    <div className="max-h-[25rem] overflow-y-auto border border-gray-200 rounded-lg p-4 custom-scrollbar">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {products.map((product, index) => (
+          <ProductCard
+            key={product.product_id || product.id}
+            product={product}
+            onView={() => onSelectProduct(index)}
+            onDelete={handleDelete}
+          />
+        ))}
+      </div>
     </div>
   );
 }

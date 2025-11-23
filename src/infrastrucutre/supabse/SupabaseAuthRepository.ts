@@ -14,11 +14,24 @@ export class SupabaseAuthRepository implements IAuthRepository {
     });
 
     if (error) {
+      // Solo loguear en desarrollo
+      if (process.env.NODE_ENV === "development") {
+        console.log("Error en signUp:", error?.message);
+      }
+
+      // Detectar si el usuario ya existe
+      if (
+        error.message.includes("already registered") ||
+        error.message.includes("User already registered") ||
+        error.message.includes("duplicate")
+      ) {
+        throw new Error("USER_ALREADY_EXISTS");
+      }
       throw new Error(error.message);
     }
 
     if (!data.user) {
-      throw new Error("Registration failed");
+      throw new Error("REGISTRATION_FAILED");
     }
 
     return {
@@ -35,11 +48,21 @@ export class SupabaseAuthRepository implements IAuthRepository {
       email,
       password,
     });
+
     if (error) {
+      // Solo loguear en desarrollo
+      if (process.env.NODE_ENV === "development") {
+        console.log("Error en signIn:", error?.code, error?.message);
+      }
+
+      // Supabase retorna estos mensajes específicos
+      if (error.code == "invalid_credentials") {
+        throw new Error("INVALID_CREDENTIALS");
+      }
       throw new Error(error.message);
     }
     if (!data.user || !data.session) {
-      throw new Error("Authentication failed");
+      throw new Error("AUTHENTICATION_FAILED");
     }
 
     return {
@@ -58,13 +81,20 @@ export class SupabaseAuthRepository implements IAuthRepository {
         scope: "global",
       });
       if (error) {
-        console.warn("⚠️ Error en signOut del servidor:", error.message);
+        // Solo loguear en desarrollo
+        if (process.env.NODE_ENV === "development") {
+          console.warn("⚠️ Error en signOut del servidor:", error.message);
+        }
         // Aunque falle en servidor, limpiar localmente
         await this.supabaseClient.auth.signOut({ scope: "local" });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Si todo falla, al menos limpiar localmente
-      console.error("❌ Error en signOut:", error.message);
+      if (process.env.NODE_ENV === "development") {
+        const errorMessage =
+          error instanceof Error ? error.message : "Error desconocido";
+        console.error("❌ Error en signOut:", errorMessage);
+      }
       await this.supabaseClient.auth
         .signOut({ scope: "local" })
         .catch(() => {});
@@ -72,7 +102,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
   }
   async getCurrentUser(): Promise<User | null> {
     try {
-      const { data, error } = await this.supabaseClient.auth.getUser();
+      const { data } = await this.supabaseClient.auth.getUser();
 
       if (!data.user) {
         return null;
@@ -83,9 +113,13 @@ export class SupabaseAuthRepository implements IAuthRepository {
         email: data.user.email || "",
         password: "", // Do not expose the password
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Si falla completamente, limpiar y retornar null
-      console.error("❌ Error obteniendo usuario:", error.message);
+      if (process.env.NODE_ENV === "development") {
+        const errorMessage =
+          error instanceof Error ? error.message : "Error desconocido";
+        console.error("❌ Error obteniendo usuario:", errorMessage);
+      }
       await this.supabaseClient.auth
         .signOut({ scope: "local" })
         .catch(() => {});

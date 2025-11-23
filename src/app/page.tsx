@@ -27,16 +27,24 @@ function LoginPageContent() {
         );
 
         const { data, error } = await supabase.auth.getUser();
-        if (error) throw error;
 
-        if (data.user) {
+        // Ignorar error "Auth session missing" ya que es esperado en la página de login
+        if (
+          error &&
+          !error.message.includes("session_not_found") &&
+          !error.message.includes("Auth session missing")
+        ) {
+          console.error("Error checking session:", error);
+        }
+
+        if (data?.user) {
           // Si hay sesión activa, redirigir al dashboard
           router.push("/dashboard");
         } else {
           setIsChecking(false);
         }
-      } catch (error) {
-        console.error("Error checking session:", error);
+      } catch (_error) {
+        // Silenciar errores esperados de sesión en página de login
         setIsChecking(false);
       }
     };

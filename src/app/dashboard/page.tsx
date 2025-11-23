@@ -116,6 +116,8 @@ export default function DashboardPage() {
     if (result.ok) {
       /*       console.log("✅ Producto eliminado"); */
       setProductToDelete(null);
+      // Recargar proyectos para actualizar la vista (num_products, etc.)
+      await dashboard.reloadProjects();
     } else {
       // Lanzar error para que el modal lo maneje
       throw new Error(result.error || "Error al eliminar producto");
@@ -144,8 +146,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-7xl mx-auto bg-white rounded-lg  p-8">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
@@ -201,7 +203,7 @@ export default function DashboardPage() {
               <div className="flex-1" />
               <button
                 onClick={dashboard.handleCreateProject}
-                className="px-5 py-2 bg-gray-800 hover:bg-black text-white rounded transition-colors flex items-center gap-2"
+                className="w-[10em] mt-[1px] px-2 py-2 bg-gray-800 hover:bg-black text-white rounded transition-colors flex items-center gap-2"
               >
                 <PlusIcon />
                 <span>Nuevo Proyecto</span>
@@ -217,16 +219,18 @@ export default function DashboardPage() {
                 </p>
               </div>
             ) : (
-              <div className="flex flex-wrap gap-6">
-                {dashboard.projects.map((project) => (
-                  <ProjectCard
-                    key={project.project_id}
-                    project={project}
-                    onPlay={dashboard.handlePlay}
-                    onInfo={dashboard.handleEdit}
-                    onDelete={dashboard.handleDelete}
-                  />
-                ))}
+              <div className="max-h-[calc(98vh-280px)] w-full overflow-y-auto custom-scrollbar bg-white rounded-lg">
+                <div className="flex flex-wrap gap-6 p-1">
+                  {dashboard.projects.map((project) => (
+                    <ProjectCard
+                      key={project.project_id}
+                      project={project}
+                      onPlay={dashboard.handlePlay}
+                      onInfo={dashboard.handleEdit}
+                      onDelete={dashboard.handleDelete}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -251,7 +255,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => setIsAddProductModalOpen(true)}
-                className="px-5 py-2 bg-gray-800 hover:bg-black text-white rounded transition-colors flex items-center gap-2"
+                className="w-[10em] px-2 py-2 bg-gray-800 hover:bg-black text-white rounded transition-colors flex items-center gap-2"
               >
                 <PlusIcon />
                 <span>Nuevo Producto</span>
@@ -273,16 +277,18 @@ export default function DashboardPage() {
                 </p>
               </div>
             ) : (
-              <div className="flex flex-wrap gap-6">
-                {productsHook.filteredProducts.map((product) => (
-                  <ProductCard
-                    key={product.product_id || product.id}
-                    product={product}
-                    onView={handleViewProduct}
-                    onDelete={handleDeleteProduct}
-                    onNameUpdated={productsHook.refreshProducts}
-                  />
-                ))}
+              <div className="max-h-[calc(98vh-280px)] w-full overflow-y-auto custom-scrollbar bg-white rounded-lg">
+                <div className="flex flex-wrap gap-6 p-1">
+                  {productsHook.filteredProducts.map((product) => (
+                    <ProductCard
+                      key={product.product_id || product.id}
+                      product={product}
+                      onView={handleViewProduct}
+                      onDelete={handleDeleteProduct}
+                      onNameUpdated={productsHook.refreshProducts}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </div>

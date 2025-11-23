@@ -191,7 +191,7 @@ FileUploadSectionProps) {
           <h3 className="text-sm font-medium text-gray-700">
             Archivos seleccionados ({files.length})
           </h3>
-          <div className="max-h-60 overflow-y-auto space-y-2">
+          <div className="max-h-60 overflow-y-auto space-y-2 custom-scrollbar">
             {files.map((file, index) => (
               <div
                 key={index}

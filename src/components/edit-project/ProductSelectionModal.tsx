@@ -170,7 +170,7 @@ export function ProductSelectionModal({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
           {isLoading ? (
             <div className="text-center py-16">
               <div className="text-gray-600">Cargando productos...</div>

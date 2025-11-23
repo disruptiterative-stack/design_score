@@ -31,11 +31,34 @@ export async function signInAction(email: string, password: string) {
     );
     return { success: true, user };
   } catch (error) {
-    // No exponer detalles internos del error
-    console.error("Error en signIn:", error);
+    // Solo loguear en desarrollo, no en producción
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error en signIn:", error);
+    }
+
+    // Mensajes de error explícitos según el tipo de error
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido";
+
+    if (errorMessage === "INVALID_CREDENTIALS") {
+      return {
+        success: false,
+        error: "usuario o contraseña incorrecta.",
+      };
+    }
+
+    if (errorMessage === "AUTHENTICATION_FAILED") {
+      return {
+        success: false,
+        error: "Error de autenticación. Por favor, intenta nuevamente.",
+      };
+    }
+
+    // Error genérico para casos no específicos
     return {
       success: false,
-      error: "Credenciales inválidas o error de autenticación",
+      error:
+        "Error al iniciar sesión. Verifica tus credenciales e intenta nuevamente.",
     };
   }
 }
@@ -70,17 +93,36 @@ export async function signUpAction(email: string, password: string) {
     );
     return { success: true, user };
   } catch (error) {
-    // No exponer detalles internos del error
-    console.error("Error en signUp:", error);
+    // Solo loguear en desarrollo, no en producción
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error en signUp:", error);
+    }
+
+    // Mensajes de error explícitos
     const errorMessage =
-      error instanceof Error ? error.message : "Error al crear cuenta";
+      error instanceof Error ? error.message : "Error desconocido";
 
-    // Sanitizar mensaje de error para no exponer información sensible
-    const safeMessage = errorMessage.includes("already registered")
-      ? "Este email ya está registrado"
-      : "Error al crear la cuenta. Intenta nuevamente.";
+    if (errorMessage === "USER_ALREADY_EXISTS") {
+      return {
+        success: false,
+        error:
+          "Este correo electrónico ya está registrado. Por favor, inicia sesión.",
+      };
+    }
 
-    return { success: false, error: safeMessage };
+    if (errorMessage === "REGISTRATION_FAILED") {
+      return {
+        success: false,
+        error: "Error al crear la cuenta. Por favor, intenta nuevamente.",
+      };
+    }
+
+    // Error genérico para casos no específicos
+    return {
+      success: false,
+      error:
+        "Error al crear la cuenta. Por favor, verifica los datos e intenta nuevamente.",
+    };
   }
 }
 
@@ -93,7 +135,10 @@ export async function signOutAction() {
     await authUseCase.signOut();
     return { success: true };
   } catch (error) {
-    console.error("Error en signOut:", error);
+    // Solo loguear en desarrollo, no en producción
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error en signOut:", error);
+    }
     return { success: false, error: "Error al cerrar sesión" };
   }
 }
@@ -107,8 +152,10 @@ export async function getCurrentUserAction() {
     const user = await authUseCase.getCurrentUser();
     return { success: true, user };
   } catch (error) {
-    // No exponer detalles del error
-    console.error("Error obteniendo usuario actual:", error);
+    // Solo loguear en desarrollo, no en producción
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error obteniendo usuario actual:", error);
+    }
     return { success: false, error: "Error de autenticación", user: null };
   }
 }

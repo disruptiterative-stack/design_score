@@ -95,7 +95,7 @@ export default function ProductGalleryModal({
         </div>
 
         {/* Products Grid */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
           {filteredProducts.length === 0 ? (
             <div className="text-center py-16 text-gray-500">
               {searchTerm

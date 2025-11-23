@@ -85,7 +85,13 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
           />
 
           {/* Mensaje de Error */}
-          {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4">
+              <p className="text-red-400 text-sm font-medium text-center">
+                {error}
+              </p>
+            </div>
+          )}
 
           {/* Botón de Ingreso */}
           <div className="flex items-center justify-center gap-3">

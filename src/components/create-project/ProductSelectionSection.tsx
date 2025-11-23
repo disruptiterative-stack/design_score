@@ -180,8 +180,8 @@ export default function ProductSelectionSection({
         {selectedProducts.size} producto(s) seleccionado(s)
       </div>
 
-      {/* Products Grid */}
-      <div className="max-h-[500px] overflow-y-auto mb-6 border border-gray-200 rounded-lg p-4">
+      {/* Products Grid - Muestra máximo 2 filas con scroll */}
+      <div className="min-h-[25rem] overflow-y-auto mb-6 border border-gray-200 rounded-lg p-4 custom-scrollbar">
         {filteredProducts.length === 0 ? (
           <div className="text-center py-16 text-gray-500">
             {searchTerm
