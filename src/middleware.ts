@@ -15,6 +15,29 @@ const protectedApiRoutes = [];
 const SESSION_TIMEOUT = 4 * 60 * 60 * 1000;
 
 /**
+ * Verifica si una cadena es un UUID válido
+ */
+function isUUID(str: string): boolean {
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+}
+
+/**
+ * Verifica si la ruta es un proyecto público
+ * Los proyectos públicos usan public_key (no UUID) en lugar de project_id (UUID)
+ */
+function isPublicProjectRoute(pathname: string): boolean {
+  const projectMatch = pathname.match(/^\/project\/([^\/]+)/);
+  if (projectMatch) {
+    const identifier = projectMatch[1];
+    // Si NO es un UUID, es un public_key y por tanto es público
+    return !isUUID(identifier);
+  }
+  return false;
+}
+
+/**
  * Valida el origen de la petición para prevenir CSRF
  */
 function isValidOrigin(request: NextRequest): boolean {
@@ -82,6 +105,12 @@ export default async function middleware(request: NextRequest) {
 
   // Si es una ruta pública, permitir acceso
   if (publicRoutes.includes(pathname)) {
+    return NextResponse.next();
+  }
+
+  // Si es una ruta de proyecto público (usa public_key), permitir acceso sin autenticación
+  if (isPublicProjectRoute(pathname)) {
+    /*     console.log("✅ Ruta pública detectada:", pathname); */
     return NextResponse.next();
   }
 

@@ -42,6 +42,17 @@ export function useProjects() {
   };
 
   /**
+   * Actualiza un proyecto específico en la lista
+   */
+  const updateProject = (updatedProject: Project) => {
+    setProjects((prev) =>
+      prev.map((p) =>
+        p.project_id === updatedProject.project_id ? updatedProject : p
+      )
+    );
+  };
+
+  /**
    * Carga inicial
    */
   useEffect(() => {
@@ -55,5 +66,6 @@ export function useProjects() {
     loadProjects,
     findProject,
     removeProject,
+    updateProject,
   };
 }

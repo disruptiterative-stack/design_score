@@ -79,5 +79,6 @@ export function useDashboard() {
     handleDelete,
     handleCreateProject,
     reloadProjects: projectsState.loadProjects,
+    updateProject: projectsState.updateProject,
   };
 }

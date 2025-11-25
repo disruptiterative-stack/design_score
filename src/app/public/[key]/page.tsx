@@ -1,27 +1,29 @@
 "use client";
 
 import { useParams, notFound } from "next/navigation";
-import { useProjectViewer } from "@/src/hooks/useProjectViewer";
+import { usePublicProjectViewer } from "@/src/hooks/usePublicProjectViewer";
 import { useModelPreloader } from "@/src/hooks/useModelPreloader";
 import OptimizedViewerPool from "@/src/components/OptimizedViewerPool";
 import { LoadingScreen } from "@/src/components/LoadingScreen";
 import { useEffect } from "react";
 
-export default function ProjectViewerPage() {
+export default function PublicProjectViewerPage() {
   const params = useParams();
-  const projectId = params.id as string;
-  const viewer = useProjectViewer(projectId);
+  const publicKey = params.key as string;
+  const viewer = usePublicProjectViewer(publicKey);
 
   // Pre-cargar todos los modelos
   const preloader = useModelPreloader(viewer.views, viewer.allProducts);
 
-  // Si hay un error que indica que el proyecto no existe o no hay admin, mostrar 404
+  // Si hay un error que indica que el proyecto no existe, mostrar 404
   useEffect(() => {
     if (
       viewer.error &&
       (viewer.error.includes("no encontrado") ||
         viewer.error.includes("no existe") ||
-        viewer.error.includes("not found"))
+        viewer.error.includes("not found") ||
+        viewer.error.includes("no público") ||
+        viewer.error.includes("no disponible"))
     ) {
       notFound();
     }
@@ -110,10 +112,10 @@ export default function ProjectViewerPage() {
             </div>
           )}
           <button
-            onClick={viewer.handleBackToDashboard}
+            onClick={viewer.handleRestart}
             className="px-6 py-3 bg-gray-800 hover:bg-black text-white rounded-lg transition-colors font-medium"
           >
-            {viewer.isPublicView ? "Ver de Nuevo" : "Volver al Dashboard"}
+            Ver de Nuevo
           </button>
         </div>
       </div>
@@ -134,20 +136,14 @@ export default function ProjectViewerPage() {
     );
   }
 
-  // const viewType = products.length === 1 ? "RUTA" : "COMPARATIVO";
-
   return (
     <div className="fixed inset-0 bg-white flex flex-col">
-      {/* Header */}
+      {/* Header con nombre del proyecto y vista */}
       <div className="text-white p-4 bg-white z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div>
-            {viewer.isPublicView && viewer.project?.name && (
-              <p className="text-gray-500 text-sm">{viewer.project.name}</p>
-            )}
-            <p className="text-black text-[20px] ml-2 mt-1">
-              {currentView.name}
-            </p>
+            <p className="text-gray-500 text-sm">{viewer.project?.name}</p>
+            <p className="text-black text-[20px] mt-1">{currentView.name}</p>
           </div>
         </div>
       </div>
@@ -156,7 +152,7 @@ export default function ProjectViewerPage() {
       <div className="flex-1 w-full overflow-hidden bg-white">
         <OptimizedViewerPool
           currentProducts={products}
-          nextProducts={[]} // Ya no necesitamos pre-cargar la siguiente vista
+          nextProducts={[]}
           currentViewIndex={viewer.currentViewIndex}
           gridCols={
             products.length === 1
@@ -185,12 +181,10 @@ export default function ProjectViewerPage() {
             )}
           </div>
 
-          {/* Contador de vistas (solo en vista pública) */}
-          {viewer.isPublicView && (
-            <div className="text-gray-600 text-sm">
-              Vista {viewer.currentViewIndex + 1} de {viewer.totalViews}
-            </div>
-          )}
+          {/* Contador de vistas */}
+          <div className="text-gray-600 text-sm">
+            Vista {viewer.currentViewIndex + 1} de {viewer.totalViews}
+          </div>
 
           {/* Botón Siguiente/Finalizar a la derecha */}
           <div>

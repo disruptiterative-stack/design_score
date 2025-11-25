@@ -10,6 +10,8 @@ export interface Project {
   updated_at?: string;
   size?: number;
   num_product?: number;
+  is_public?: boolean; // Indica si el proyecto es público
+  public_key?: string; // Clave única para acceso público
   // Campos opcionales para relaciones pobladas
   products?: Product[];
 }

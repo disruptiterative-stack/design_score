@@ -48,6 +48,33 @@ export class SupabaseProjectRepository implements IProjectRepository {
     return this.mapToProject(data);
   }
 
+  async findByPublicKey(publicKey: string): Promise<Project | null> {
+    /*     console.log("🔎 [Repository] Buscando con public_key:", publicKey); */
+
+    const { data, error } = await this.supabaseClient
+      .from("projects")
+      .select("*")
+      .eq("public_key", publicKey)
+      .eq("is_public", true)
+      .single();
+
+    /*   console.log("📊 [Repository] Respuesta de Supabase:");
+    console.log("  - Data:", data);
+    console.log("  - Error:", error); */
+
+    if (error || !data) {
+      console.warn(
+        "⚠️ [Repository] No se encontró proyecto o hubo error:",
+        error?.message
+      );
+      return null;
+    }
+
+    const project = this.mapToProject(data);
+    /*   console.log("✅ [Repository] Proyecto mapeado:", project); */
+    return project;
+  }
+
   async findByIdWithProducts(projectId: string): Promise<Project | null> {
     // Obtener el proyecto
     const { data: projectData, error: projectError } = await this.supabaseClient
@@ -179,6 +206,12 @@ export class SupabaseProjectRepository implements IProjectRepository {
     if (updates.name !== undefined) updateData.name = updates.name;
     if (updates.final_message !== undefined)
       updateData.final_message = updates.final_message;
+    if (updates.is_public !== undefined)
+      updateData.is_public = updates.is_public;
+    if (updates.public_key !== undefined)
+      updateData.public_key = updates.public_key;
+
+    /* console.log("📝 Actualizando proyecto con datos:", updateData); */
 
     const { data, error } = await this.supabaseClient
       .from("projects")
@@ -303,6 +336,8 @@ export class SupabaseProjectRepository implements IProjectRepository {
       final_message: data.final_message,
       created_at: data.created_at,
       updated_at: data.updated_at,
+      is_public: data.is_public || false,
+      public_key: data.public_key,
       products: [], // Se llena por separado si es necesario
     };
   }

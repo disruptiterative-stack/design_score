@@ -13,6 +13,7 @@ import { useDashboard } from "@/src/hooks/useDashboard";
 import { useProducts } from "@/src/hooks/useProducts";
 import { useDirectUpload } from "@/src/hooks/useDirectUpload";
 import { signOutAction } from "@/src/app/actions/authActions";
+import { toggleProjectPublicAction } from "@/src/app/actions/projectActions";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -37,6 +38,21 @@ export default function DashboardPage() {
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
       setIsLoggingOut(false);
+    }
+  };
+
+  const handleTogglePublic = async (projectId: string, isPublic: boolean) => {
+    try {
+      const result = await toggleProjectPublicAction(projectId, isPublic);
+      if (result.ok && result.project) {
+        // Actualizar solo el proyecto específico sin recargar toda la lista
+        dashboard.updateProject(result.project);
+      } else {
+        alert(`Error al cambiar visibilidad: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Error al cambiar visibilidad:", error);
+      alert("Error al cambiar la visibilidad del proyecto");
     }
   };
 
@@ -228,6 +244,7 @@ export default function DashboardPage() {
                       onPlay={dashboard.handlePlay}
                       onInfo={dashboard.handleEdit}
                       onDelete={dashboard.handleDelete}
+                      onTogglePublic={handleTogglePublic}
                     />
                   ))}
                 </div>

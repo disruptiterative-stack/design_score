@@ -198,3 +198,57 @@ export async function getProjectsCountAction(): Promise<number> {
     return 0;
   }
 }
+
+/**
+ * Genera un public_key aleatorio único
+ */
+function generatePublicKey(): string {
+  // Generar 8 bytes aleatorios y convertirlos a hexadecimal
+  const array = new Uint8Array(8);
+  crypto.getRandomValues(array);
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join(
+    ""
+  );
+}
+
+/**
+ * Alterna la visibilidad pública de un proyecto
+ * Si se hace público, genera un nuevo public_key
+ */
+export async function toggleProjectPublicAction(
+  projectId: string,
+  isPublic: boolean
+): Promise<{ project: Project | null; ok: boolean; error: string | null }> {
+  try {
+    const client = await createClient();
+    const authRepository = new SupabaseAuthRepository(client);
+    const projectRepository = new SupabaseProjectRepository(client);
+    const projectUseCase = new ProjectUseCase(projectRepository);
+    const authUseCase = new AuthUseCase(authRepository);
+
+    const admin = await authUseCase.getCurrentUser();
+    if (!admin) {
+      return { project: null, ok: false, error: "No authenticated user" };
+    }
+
+    // Si se está haciendo público, generar un nuevo public_key
+    const updates: Partial<Project> = {
+      is_public: isPublic,
+    };
+
+    if (isPublic) {
+      // Generar nuevo public_key cuando se hace público
+      updates.public_key = generatePublicKey();
+      console.log("🔑 Nuevo public_key generado:", updates.public_key);
+    }
+
+    return await projectUseCase.updateProject(projectId, updates);
+  } catch (error) {
+    console.error("Error toggling project visibility:", error);
+    return {
+      project: null,
+      ok: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}

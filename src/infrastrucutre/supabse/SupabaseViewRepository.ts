@@ -45,15 +45,26 @@ export class SupabaseViewRepository implements IViewRepository {
   }
 
   async findByProjectId(projectId: string): Promise<View[]> {
+    //    console.log("🔎 [ViewRepo] Buscando vistas para project_id:", projectId);
+
     const { data, error } = await this.supabaseClient
       .from("views")
       .select("*")
       .eq("project_id", projectId)
       .order("idx", { ascending: true });
 
-    if (error || !data) return [];
+    /*     console.log("📊 [ViewRepo] Respuesta de vistas:");
+    console.log("  - Data:", data);
+    console.log("  - Error:", error); */
 
-    return data.map((row: any) => this.mapToView(row));
+    if (error || !data) {
+      console.warn("⚠️ [ViewRepo] No se encontraron vistas o hubo error");
+      return [];
+    }
+
+    const views = data.map((row: any) => this.mapToView(row));
+    /* console.log("✅ [ViewRepo] Vistas mapeadas:", views.length); */
+    return views;
   }
 
   async findByProjectIdAndIdx(
@@ -194,6 +205,8 @@ export class SupabaseViewRepository implements IViewRepository {
   }
 
   async getProductsByViewId(viewId: string): Promise<Product[]> {
+    /*  console.log("🔎 [ViewRepo] Buscando productos para view_id:", viewId); */
+
     const { data, error } = await this.supabaseClient
       .from("view_products")
       .select(
@@ -203,14 +216,24 @@ export class SupabaseViewRepository implements IViewRepository {
       `
       )
       .eq("view_id", viewId);
+    /* 
+    console.log("📊 [ViewRepo] Respuesta de productos:");
+    console.log("  - Data:", data);
+    console.log("  - Error:", error); */
 
-    if (error || !data) return [];
+    if (error || !data) {
+      console.warn("⚠️ [ViewRepo] No se encontraron productos o hubo error");
+      return [];
+    }
 
     // Extraer y mapear los productos
-    return data
+    const products = data
       .map((row: any) => row.products)
       .filter((p: any) => p !== null)
       .map((p: any) => this.mapToProduct(p));
+    /* 
+    console.log("✅ [ViewRepo] Productos mapeados:", products.length); */
+    return products;
   }
 
   // ============================================================
